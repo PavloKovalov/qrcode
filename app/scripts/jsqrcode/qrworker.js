@@ -1,33 +1,36 @@
-importScripts('grid.js',
-    'version.js',
-    'detector.js',
-    'formatinf.js',
-    'errorlevel.js',
-    'bitmat.js',
-    'datablock.js',
-    'bmparser.js',
-    'datamask.js',
-    'rsdecoder.js',
-    'gf256poly.js',
-    'gf256.js',
-    'decoder.js',
-    'qrcode.js',
-    'findpat.js',
-    'alignpat.js',
-    'databr.js');
+importScripts(
+  'grid.js',
+  'version.js',
+  'detector.js',
+  'formatinf.js',
+  'errorlevel.js',
+  'bitmat.js',
+  'datablock.js',
+  'bmparser.js',
+  'datamask.js',
+  'rsdecoder.js',
+  'gf256poly.js',
+  'gf256.js',
+  'decoder.js',
+  'qrcode.js',
+  'findpat.js',
+  'alignpat.js',
+  'databr.js'
+);
 
 
-self.onmessage = function(e) {
-  var data = e.data;
+this.onmessage = function(e) {
+  var imageData = e.data,
+    width, height, result;
 
   try {
-    var width = data.width;
-    var height = data.height;
-    var result = qrcode.decode(width, height, data);
+    width = imageData.width;
+    height = imageData.height;
+    result = qrcode.decode(width, height, imageData);
+    
     postMessage(result);
   } 
   catch(e) {
     postMessage(undefined);
   }
-
-};
+}

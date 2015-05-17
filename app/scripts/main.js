@@ -46,8 +46,7 @@
     var qrcodeNavigate = root.querySelector(".QRCodeSuccessDialog-navigate");
     var qrcodeIgnore = root.querySelector(".QRCodeSuccessDialog-ignore");
 
-    var client = new QRClient();
-
+    var qrWorker = new Worker('scripts/jsqrcode/qrworker.js');
     var self = this;
 
     this.currentUrl = undefined;
@@ -56,12 +55,15 @@
     this.detectQRCode = function(imageData, callback) {
       callback = callback || function() {};
 
-      client.decode(imageData, function(result) {
-        if(result !== undefined) {
-          self.currentUrl = result;
+      qrWorker.onmessage = function(result) {
+        var url = result.data;
+        if(url !== undefined && url !== self.currentUrl) {
+          self.currentUrl = url;
         }
-        callback(result);
-      });
+        callback(url);
+      };
+
+      qrWorker.postMessage(imageData);
     };
 
     this.showDialog = function(url) {
@@ -191,6 +193,8 @@
       if(self.onframe) self.onframe();
 
       coordinatesHaveChanged = false;
+
+      requestAnimationFrame(captureFrame);
     };
 
     var getCamera = function(videoSource, cb) {
@@ -221,7 +225,7 @@
           
           var isSetup = setupVariables(e);
           if(isSetup) {
-            setInterval(captureFrame.bind(self), 4);
+            requestAnimationFrame(captureFrame.bind(self));
           }
           else {
             // This is just to get around the fact that the videoWidth is not
@@ -229,7 +233,7 @@
             setTimeout(function() {
               setupVariables(e);
 
-              setInterval(captureFrame.bind(self), 4);
+              requestAnimationFrame(captureFrame.bind(self));
             }, 100);
           }
 
